@@ -1,0 +1,298 @@
+---
+title: "Heatmap"
+format: html
+---
+
+setwd("/storage/liuxiaodongLab/liaozizhuo/Projects/fanyi/code/DEG/")
+
+# Load required packages
+
+```{r}
+library(Seurat)
+library(dplyr)
+library(presto)
+library(ggplot2)
+library(tidyr)
+library(pheatmap)
+library(tibble)
+```
+
+# Step 1: Load the Seurat object and subset the relevant cell subclasses
+```{r}
+# 8个需要分析的subclass列表
+subclass_list <- c("L2/3-CUX2", "L3-5-RORB", "L5/6-THEMIS", "L5/6-TLE4", "VIP", "ID2", "SST", "PV")
+
+# PD相关基因列表（与原代码一致）
+pd_genes <- c(
+  "SNCA", "LRRK2", "GBA1", "VPS35", "PINK1", "PARK7", "ATP13A2", "FBXO7",
+  "CHCHD2", "DNAJC6", "DNAJC13", "VPS13C", "PLA2G6", "GCH1", "UCHL1",
+  "HTRA2", "EIF4G1", "SPG11", "TMEM230", "GIGYF2", "PARK2", "PTRHD1",
+  "NSF", "ARL17B", "KANSL1", "MAPT", "TMEM175",
+  "NR4A2", "PITX3", "COMT", "VDR", "BDNF", "DCTN1", "SYNJ1", "UQCRC1",
+  "LRP10", "SIPA1L2", "INPP5F", "MIR4697", "DDRGK1", "CTSD", "CTSB",
+  "TFAM", "OPA1"
+)
+
+# --------------------------
+# 循环分析8个subclass
+# --------------------------
+# 初始化列表存储每个subclass的结果
+all_subclass_results <- list()
+# 初始化列表存储每个subclass中PD组的PD标记基因（用于后续取交集）
+pd_group_pd_genes <- list()
+```
+
+
+
+##计算每个subclass中PD基因的富集情况
+```{r}
+for (current_subclass in subclass_list) {
+  cat("正在处理Subclass:", current_subclass, "\n")
+  # 1. 子集化当前subclass的细胞
+  sobj_sub <- subset(sobj, subset = subclass == current_subclass)
+  
+  # 检查Group是否包含至少两个组（确保有PD和Control）
+  if (length(unique(sobj_sub$Group)) < 2) {
+    warning(paste("Subclass", current_subclass, "的Group变量少于2组，跳过分析"))
+    next
+  }
+  
+  # 2. 提取当前subclass的所有基因（作为背景基因）
+  all_genes_sub <- rownames(sobj_sub)
+  
+  # 3. 筛选当前subclass中存在的PD基因
+  pd_genes_sub <- intersect(pd_genes, all_genes_sub)
+  if (length(pd_genes_sub) == 0) {
+    warning(paste("Subclass", current_subclass, "中无PD相关基因，跳过分析"))
+    next
+  }
+  
+  # 4. 按Group计算标记基因（PD vs Control）
+  Idents(sobj_sub) <- "Group"
+  presto_markers <- presto::wilcoxauc(sobj_sub, group_by = "Group")
+  
+  # 5. 提取每个Group的Top 10% AUC标记基因
+  top_markers <- presto_markers %>%
+    group_by(group) %>%
+    top_n(n = floor(0.1 * n()), wt = auc) %>%  # 按AUC取前10%
+    group_split()
+  
+  marker_list <- lapply(top_markers, function(df) unique(df$feature))
+  names(marker_list) <- sapply(top_markers, function(df) unique(df$group))
+  
+  # 6. 对当前subclass的每个Group执行Fisher富集检验
+  sub_results <- do.call(rbind, lapply(names(marker_list), function(group_name) {
+    # 当前Group的标记基因
+    group_markers <- marker_list[[group_name]]
+    
+    # 构建2x2列联表
+    a <- sum(pd_genes_sub %in% group_markers)  # PD基因且为标记基因
+    b <- sum(pd_genes_sub %in% setdiff(all_genes_sub, group_markers))  # PD基因但非标记基因
+    c <- sum(setdiff(all_genes_sub, pd_genes_sub) %in% group_markers)  # 非PD基因但为标记基因
+    d <- sum(setdiff(all_genes_sub, pd_genes_sub) %in% setdiff(all_genes_sub, group_markers))  # 非PD基因且非标记基因
+    
+    # Fisher检验
+    contingency <- matrix(c(a, b, c, d), nrow = 2)
+    fisher_result <- fisher.test(contingency)
+    
+    # 整理结果（增加subclass标识）
+    data.frame(
+      subclass = current_subclass,  # 记录当前亚类
+      group = group_name,           # 记录分组（PD/Control）
+      p_value = fisher_result$p.value,
+      odds_ratio = as.numeric(fisher_result$estimate),  # 转换为数值型
+      a = a, b = b, c = c, d = d,
+      stringsAsFactors = FALSE
+    )
+  }))
+  
+  
+  
+  
+  # 7. 存储当前subclass的结果
+  all_subclass_results[[current_subclass]] <- sub_results
+  
+  # 8. 提取当前subclass中PD组的PD标记基因（用于后续取交集）
+  # 假设PD组的名称包含"PD"（可根据实际数据调整）
+  pd_group_name <- grep("PD", names(marker_list), ignore.case = TRUE, value = TRUE)
+  if (length(pd_group_name) == 1) {
+    pd_markers <- marker_list[[pd_group_name]]
+    pd_genes_in_pd_group <- intersect(pd_markers, pd_genes_sub)  # PD组标记基因中的PD基因
+    pd_group_pd_genes[[current_subclass]] <- pd_genes_in_pd_group
+  }
+}
+```
+
+##整合所有subclass的结果
+```{r}
+# --------------------------
+# 整合所有subclass的结果到一个数据框
+# --------------------------
+combined_results <- do.call(rbind, all_subclass_results)
+
+# 计算校正后p值（多重检验校正）
+combined_results$padj <- p.adjust(combined_results$p_value, method = "bonferroni")
+combined_results$logP <- -log10(combined_results$p_value)
+
+# 查看整合结果
+head(combined_results)
+
+write.csv(combined_results, "../Documents/PD_gene_enrichment_results_by_subclass.csv", row.names = FALSE)
+```
+
+##barplot进行可视化
+```{r}
+# --------------------------
+# 可视化：按subclass和group展示富集结果
+# --------------------------
+# 绘制条形图（按subclass分组，区分PD/Control）
+ggplot(combined_results, aes(x = reorder(subclass, -logP), y = logP, fill = group)) +
+  geom_bar(stat = "identity", position = "dodge") +
+  geom_hline(yintercept = -log10(0.05), linetype = "dashed", color = "red") +
+  coord_flip() +
+  labs(
+    title = "Enrichment of PD Associated Genes by Cell Subclass",
+    x = "Cell Subclass",
+    y = "-log10(P value)",
+    fill = "Group"
+  ) +
+  theme_classic()+
+  scale_fill_manual(values = c("PD" = "#FB9A99", "Control" = "#AAD4EA" ))
+
+ggsave("../plot/PD_gene_enrichment_by_subclass.pdf", width = 8, height = 6)
+
+```
+
+
+##计算每个subclass中PD基因的AUC值并绘制热图
+
+```{r}
+# --------------------------
+# 1. 定义核心参数
+# --------------------------
+# 8个目标subclass
+subclass_list <- c("L2/3-CUX2", "L3-5-RORB", "L5/6-THEMIS", "L5/6-TLE4", "VIP", "ID2", "SST", "PV")
+
+# PD相关基因列表（与之前一致）
+pd_genes <- c(
+  "SNCA", "LRRK2", "GBA1", "VPS35", "PINK1", "PARK7", "ATP13A2", "FBXO7",
+  "CHCHD2", "DNAJC6", "DNAJC13", "VPS13C", "PLA2G6", "GCH1", "UCHL1",
+  "HTRA2", "EIF4G1", "SPG11", "TMEM230", "GIGYF2", "PARK2", "PTRHD1",
+  "NSF", "ARL17B", "KANSL1", "MAPT", "TMEM175",
+  "NR4A2", "PITX3", "COMT", "VDR", "BDNF", "DCTN1", "SYNJ1", "UQCRC1",
+  "LRP10", "SIPA1L2", "INPP5F", "MIR4697", "DDRGK1", "CTSD", "CTSB",
+  "TFAM", "OPA1"
+)
+```
+
+
+```{r}
+# --------------------------
+# 2. 循环提取每个subclass中PD基因的AUC值（PD vs Control）
+# --------------------------
+# 初始化列表存储结果
+auc_results_list <- list()
+
+for (current_subclass in subclass_list) {
+  # 2.1 子集化当前subclass的细胞
+  sobj_sub <- subset(sobj, subset = subclass == current_subclass)
+  
+  # 检查Group是否包含至少两个组（确保有PD和Control）
+  if (length(unique(sobj_sub$Group)) < 2) {
+    warning(paste("Subclass", current_subclass, "的Group变量少于2组，跳过分析"))
+    next
+  }
+  
+  # 2.2 提取当前subclass中存在的PD基因
+  all_genes_sub <- rownames(sobj_sub)
+  pd_genes_sub <- intersect(pd_genes, all_genes_sub)
+  if (length(pd_genes_sub) == 0) {
+    warning(paste("Subclass", current_subclass, "中无PD相关基因，跳过分析"))
+    next
+  }
+  
+  # 2.3 计算PD vs Control的AUC值（按Group分组）
+  Idents(sobj_sub) <- "Group"
+  # 明确指定对比方向：PD组作为"处理组"，Control作为"对照组"
+  # 假设Group命名为"PD"和"Control"，若实际名称不同需修改（如"Parkinson"和"Control"）
+  auc_df <- presto::wilcoxauc(
+    sobj_sub, 
+    group_by = "Group", 
+    comparison = c("PD", "Control")  # 明确对比：PD vs Control
+  )
+  
+  # 2.4 筛选PD基因的AUC值，并添加subclass标识
+  pd_auc_sub <- auc_df %>%
+    filter(feature %in% pd_genes_sub) %>%  # 仅保留PD基因
+    select(feature, auc,group) %>%  # 保留基因名和AUC值
+    mutate(
+      subclass = current_subclass,  # 添加当前subclass标识
+      comparison = "PD_vs_Control"  # 记录对比方式
+    ) %>%
+    dplyr::rename(gene = feature)  # 重命名列为gene，更直观
+  
+  # 2.5 存储当前subclass的结果
+  auc_results_list[[current_subclass]] <- pd_auc_sub
+}
+
+# --------------------------
+# 3. 整合所有结果为一个表格
+# --------------------------
+# 合并所有subclass的AUC结果
+auc_combined <- do.call(rbind, auc_results_list)
+
+# 查看表格结构（包含subclass、gene、auc、comparison四列）
+head(auc_combined)
+
+# 保存表格为CSV文件（方便后续分析）
+dir.create("../Documents")
+write.csv(auc_combined, "../Documents/PD_genes_AUC_per_subclass.csv", row.names = FALSE)
+```
+
+
+```{r}
+# --------------------------
+# 4. 转换为热图矩阵并可视化
+# --------------------------
+# 4.1 转换为矩阵（行：subclass，列：gene，值：auc）
+auc_matrix <- auc_combined %>%
+  dplyr::filter(group == "PD") %>%  # 仅保留PD vs Control的结果
+  select(subclass, gene, auc) %>%
+  pivot_wider(
+    names_from = gene,  # 列名为基因
+    values_from = auc
+    ,  # 填充AUC值values_fill = 0  # 若基因在某subclass中不存在，用0填充
+  ) %>%
+  column_to_rownames("subclass") %>%  # 行名为subclass
+  as.matrix()
+```
+
+
+```{r}
+# 4.2 绘制热图
+# 创建保存图片的目录
+dir.create("../plot", showWarnings = FALSE)
+
+
+# 热图参数设置（优化可读性）
+pdf("../plot/PD_genes_AUC_heatmap_per_subclass.pdf", width = 14, height = 8)
+pheatmap(
+  auc_matrix,
+  main = "AUC of PD Genes Across Cell Types",
+  color = viridis::viridis(100),  # 使用渐变色，AUC值越高颜色越深
+  scale = "none",  # 不标准化（AUC值本身有明确含义0-1）
+  cluster_rows = TRUE,  # 对subclass聚类（展示相似模式）
+  cluster_cols = TRUE,  # 对基因聚类（展示共表达模式）
+  treeheight_row = 10,
+  treeheight_col = 10,
+  fontsize_row = 10,  # 行名（subclass）字体大小
+  fontsize_col = 8,   # 列名（基因）字体大小
+  angle_col = 45,     # 基因名旋转45度避免重叠
+  cellwidth = 12,     # 调整单元格宽度
+  cellheight = 15,    # 调整单元格高度
+  border_color = NA   # 去除单元格边框
+)
+dev.off()
+
+```
+

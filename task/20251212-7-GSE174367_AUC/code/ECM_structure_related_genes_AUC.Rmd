@@ -1,0 +1,162 @@
+---
+title: "ECM_related_genes_AUC"
+output: html_document
+---
+
+##guideline
+1.准备好基因list 
+2.使用sobj进行AUCell分析
+3.绘制AUC热图
+
+##1.0 Load gene list
+###1.1gene list path
+```{r}
+library(here)
+gene_list_paths <- list.files(here("data/ECM_related_genes"), full.names = TRUE)
+gene_list_paths
+
+gene_lists <- list.files(here("data/ECM_related_genes"), full.names = FALSE)
+gene_lists
+```
+
+###1.2load gene list
+```{r}
+library(openxlsx)
+for (i in seq_along(gene_list_paths)) {
+  gene_list <- read.xlsx(gene_list_paths[i], sheet = 1)
+  assign(gsub("\\.xlsx$", "", gene_lists[i]), gene_list)
+}
+
+ECM_structure_genes
+
+```
+
+
+##2.0 AUCell analysis
+###2.1 Communication genes
+```{r}
+subclass_list <- unique(sobj$Cell.Type)
+subclass_list
+
+gene_list <- ECM_structure_genes[[1]]
+```
+
+```{r}
+# --------------------------
+# 2. 循环提取每个subclass中PD基因的AUC值（PD vs Control）
+# --------------------------
+# 初始化列表存储结果
+auc_results_list <- list()
+
+for (current_subclass in subclass_list) {
+  # 2.1 子集化当前subclass的细胞
+  sobj_sub <- subset(sobj, subset = Cell.Type == current_subclass)
+  
+  # 检查Group是否包含至少两个组（确保有AD和Control）
+  if (length(unique(sobj_sub$Diagnosis)) < 2) {
+    warning(paste("Subclass", current_subclass, "的Group变量少于2组，跳过分析"))
+    next
+  }
+  
+  # 2.2 提取当前subclass中存在的PD基因
+  all_genes_sub <- rownames(sobj_sub)
+  gene_list_sub <- intersect(gene_list, all_genes_sub)
+  if (length(gene_list_sub) == 0) {
+    warning(paste("Subclass", current_subclass, "中无PD相关基因，跳过分析"))
+    next
+  }
+  
+  # 2.3 计算PD vs Control的AUC值（按Group分组）
+  Idents(sobj_sub) <- "Diagnosis"  # 设置分组变量为Diagnosis
+  # 明确指定对比方向：PD组作为"处理组"，Control作为"对照组"
+  # 假设Group命名为"PD"和"Control"，若实际名称不同需修改（如"Parkinson"和"Control"）
+  auc_df <- presto::wilcoxauc(
+    sobj_sub,
+    # group_by = "Cell.Type", 
+    comparison = c("AD", "Control")  # 明确对比：AD vs Control
+    # ,assay = "data"
+    ,seurat_assay = "RNA"
+  )
+  
+  # 2.4 筛选PD基因的AUC值，并添加subclass标识
+  ad_auc_sub <- auc_df %>%
+    filter(feature %in% gene_list_sub) %>%  # 仅保留AD基因
+    select(feature, auc,group) %>%  # 保留基因名和AUC值
+    mutate(
+      subclass = current_subclass,  # 添加当前subclass标识
+      comparison = "AD_vs_Control"  # 记录对比方式
+    ) %>%
+    dplyr::rename(gene = feature)  # 重命名列为gene，更直观
+  
+  # 2.5 存储当前subclass的结果
+  auc_results_list[[current_subclass]] <- ad_auc_sub
+}
+
+# --------------------------
+# 3. 整合所有结果为一个表格
+# --------------------------
+# 合并所有subclass的AUC结果
+auc_combined <- do.call(rbind, auc_results_list)
+
+# 查看表格结构（包含subclass、gene、auc、comparison四列）
+head(auc_combined)
+
+# 保存表格为CSV文件（方便后续分析）
+dir.create("../Documents")
+write.csv(auc_combined, "../Documents/Structure_gene_list_AUC_per_subclass.csv", row.names = FALSE)
+```
+
+
+```{r}
+library(tibble)
+library(tidyr)
+library(dplyr)
+# --------------------------
+# 4. 转换为热图矩阵并可视化
+# --------------------------
+# 4.1 转换为矩阵（行：subclass，列：gene，值：auc）
+auc_matrix <- auc_combined %>%
+  dplyr::filter(group == "AD") %>%  # 仅保留PD vs Control的结果
+  select(subclass, gene, auc) %>%
+  pivot_wider(
+    names_from = gene,  # 列名为基因
+    values_from = auc
+    ,  # 填充AUC值values_fill = 0  # 若基因在某subclass中不存在，用0填充
+  ) %>%
+  column_to_rownames("subclass") %>%  # 行名为subclass
+  as.matrix()
+```
+
+##3.0 Plot AUC heatmap
+```{r}
+library(pheatmap)
+# 4.2 绘制热图
+# 创建保存图片的目录
+dir.create("../plot", showWarnings = FALSE)
+
+
+# 热图参数设置（优化可读性）
+pdf("../plot/Structure_gene_list_AUC_heatmap_per_subclass.pdf", width = 14, height = 8)
+pheatmap(
+  auc_matrix,
+  main = "AUC of ECM Structure Associated Genes Across Cell Types",
+  color = viridis::viridis(100),  # 使用渐变色，AUC值越高颜色越深
+  scale = "none",  # 不标准化（AUC值本身有明确含义0-1）
+  cluster_rows = TRUE,  # 对subclass聚类（展示相似模式）
+  cluster_cols = TRUE,  # 对基因聚类（展示共表达模式）
+  treeheight_row = 10,
+  treeheight_col = 10,
+  fontsize_row = 10,  # 行名（subclass）字体大小
+  fontsize_col = 8,   # 列名（基因）字体大小
+  angle_col = 45,     # 基因名旋转45度避免重叠
+  cellwidth = 12,     # 调整单元格宽度
+  cellheight = 15,    # 调整单元格高度
+  border_color = NA   # 去除单元格边框
+)
+dev.off()
+
+```
+
+
+
+

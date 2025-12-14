@@ -1,0 +1,120 @@
+---
+title: "1.0Load Data"
+output: html_document
+---
+
+# Load Required Libraries
+```{r load-libraries}
+library(Seurat)   # Single-cell RNA-seq analysis toolkit
+library(dplyr)    # Data manipulation
+library(here)     # Project-relative file paths
+```
+
+```{r}
+here("data/GSE174367") %>% list.dirs()
+here("data/GSE174367") %>% list.files()
+
+files <- here("data/GSE174367") %>% list.files(pattern = "filtered_feature_bc_matrix.h5", recursive = TRUE, full.names = TRUE)
+files
+```
+
+# Load Count Matrix and Create Seurat Object
+```{r create-seurat-object}
+# Read the 10X h5 file containing gene expression counts
+counts <- Read10X_h5(files[1])
+counts
+
+# Create Seurat object from the count matrix
+sobj <- CreateSeuratObject(
+  counts = counts,
+  project = "GSE174367"
+)
+```
+
+# Load Cell Metadata
+<!-- File: GSE174367_snRNA-seq_cell_meta.csv.gz -->
+```{r load-metadata}
+# Read cell metadata from compressed CSV file
+here("data/GSE174367/GSE174367_snRNA-seq_cell_meta.csv.gz") %>% 
+  read.csv(
+    row.names = 1,           # First column as row names (cell barcodes)
+    header = TRUE,           # First row contains column names
+    check.names = FALSE      # Don't modify column names
+  ) -> cell_meta
+```
+
+# Merge Metadata with Seurat Object
+```{r merge-metadata}
+library(tibble)  # For rownames_to_column and column_to_rownames functions
+
+# Merge Seurat metadata with external cell metadata
+Meta.X <- sobj@meta.data %>% 
+  rownames_to_column(var = "cell_barcode") %>%  # Convert rownames to column
+  left_join(
+    cell_meta %>% 
+      rownames_to_column(var = "cell_barcode"),  # Convert metadata rownames to column
+    by = "cell_barcode"                          # Join by cell barcode
+  ) %>% 
+  column_to_rownames(var = "cell_barcode")       # Convert back to rownames
+
+# Update Seurat object metadata
+sobj@meta.data <- Meta.X
+
+# Remove cells with missing Diagnosis information
+sobj <- subset(sobj, subset = is.na(Diagnosis) == FALSE)
+```
+
+# Check Metadata Information
+```{r check-metadata}
+# Display all metadata column names
+sobj@meta.data %>% names
+
+# Create cross-tabulation of SampleID and Diagnosis
+with(Meta.X, table(SampleID, Diagnosis))
+```
+
+# Standard Seurat Workflow: Normalization, Scaling, and Dimensionality Reduction
+```{r seurat-workflow}
+# Normalize the data (log-normalization)
+sobj <- NormalizeData(sobj)
+
+# Identify highly variable features for downstream analysis
+sobj <- FindVariableFeatures(sobj)
+
+# Scale data and regress out unwanted sources of variation
+sobj <- ScaleData(sobj)
+
+# Run PCA on variable features
+sobj <- RunPCA(sobj, features = VariableFeatures(object = sobj))
+
+# Batch correction using Harmony
+library(harmony)
+sobj <- RunHarmony(sobj, 
+                   group.by.vars = "SampleID",     # Correct for sample-specific batch effects
+                   reduction.use = "pca")
+
+# Run UMAP for visualization using harmony-corrected embeddings
+sobj <- RunUMAP(sobj, 
+                dims = 1:20,                       # Use first 20 harmony dimensions
+                reduction = "harmony", 
+                seed.use = 1234)                   # Set seed for reproducibility
+```
+
+# Clustering Analysis
+```{r clustering}
+# Load custom reclustering function
+here("src/recluster.R") %>% source()
+
+# Perform clustering using harmony-corrected reduction
+sobj <- recluster(sobj,
+                  reduction_use = "harmony",       # Use harmony embeddings for clustering
+                  integrate_by = "SampleID"        # Integrate across samples
+                  )
+```
+
+# Save Processed Seurat Object
+```{r save-data}
+# Save the final processed Seurat object as RDS file
+saveRDS(sobj, file = here("data/GSE174367/sobj_20251212.rds"))
+```
+

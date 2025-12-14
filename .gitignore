@@ -1,0 +1,28 @@
+# RStudio files
+20251120-CY-ADpublic_data.Rproj
+.Rproj.user/
+.Rhistory
+.RData
+.Ruserdata
+
+# Data directories (large raw/processed data)
+data/
+task/*.rds
+task/*.zip
+task/*/plot/
+task/*/Documents/
+task/*/sample_dirs/
+task/*/GSE*.rds
+task/*/AGENT.md
+*.corrupted
+*.rds.corrupted
+
+# Temporary files
+*.tmp
+*.log
+*.swp
+*.bak
+
+# OS files
+.DS_Store
+Thumbs.db
