@@ -1,0 +1,199 @@
+╔═══════════════════════════════════════════════════════════════════════════╗
+║                  ECM COMMUNICATION V4 ANALYSIS RESULTS                     ║
+║                         File Index - January 8, 2026                        ║
+╔═══════════════════════════════════════════════════════════════════════════╗
+
+📂 ROOT DIRECTORY (report/20260108/)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+📄 README.md (1.0 MB)
+   Purpose: Complete navigation guide for all results
+   Contents: File descriptions, quick start guide, interpretation help
+   Recommended: START HERE!
+
+📄 QUICK_REFERENCE.md (1.0 MB)
+   Purpose: Quick reference guide for fast understanding
+   Contents: TL;DR, AUC interpretation, file recommendations
+   Recommended: Read if you have <5 minutes
+
+📄 20260108_task_summary.md (1.0 MB)
+   Purpose: Complete daily task summary (Chinese)
+   Contents: All tasks, bugs fixed, results, next steps
+   Recommended: For comprehensive overview
+
+
+📊 CSV DATA FILES (csv/) - 6.0 MB total
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+⭐ summary_statistics_per_dataset.csv (257 B)
+   Purpose: Quick overview statistics per dataset
+   Columns: dataset, cell_types_analyzed, genes_tested, total_combinations, 
+            mean_auc, sd_auc, genes_auc_gt_0.6/0.7/0.8
+   Rows: 2 (GSE174367, GSE188545)
+   Recommended: First file to open
+
+⭐ summary_statistics_per_celltype.csv (682 B)
+   Purpose: Statistics for each cell type
+   Columns: dataset, celltype, genes_tested, mean_auc, 
+            genes_auc_gt_0.6, genes_auc_gt_0.7
+   Rows: 15 (7 from GSE174367 + 8 from GSE188545)
+   Recommended: Second file to open
+
+📊 All_Datasets_ECM_communicationV4_wilcoxauc_combined.csv (74 KB)
+   Purpose: Complete results from all datasets
+   Columns: dataset, celltype, gene, auc, pval, effect_size, log2FC
+   Rows: 600 (280 from GSE174367 + 320 from GSE188545)
+   Recommended: For detailed analysis
+
+📊 GSE174367_ECM_communicationV4_wilcoxauc.csv (35 KB)
+   Purpose: GSE174367-specific results
+   Columns: celltype, gene, auc, pval, effect_size, log2FC
+   Rows: 280 (7 cell types × 20 genes)
+   Recommended: For dataset-specific analysis
+
+📊 GSE188545_ECM_communicationV4_wilcoxauc.csv (40 KB)
+   Purpose: GSE188545-specific results
+   Columns: celltype, gene, auc, pval, effect_size, log2FC
+   Rows: 320 (8 cell types × 20 genes)
+   Recommended: For dataset-specific analysis
+
+
+📈 FIGURE FILES (figures/) - 5.0 MB total
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+⭐ All_Datasets_ECM_communicationV4_AUC_heatmap.pdf
+   Size: ~8.0 KB
+   Purpose: Combined heatmap for both datasets
+   Content: AUC values for 20 genes × 15 cell types
+   Recommended: First visualization to view
+   Format: PDF (vector-based, infinitely zoomable)
+
+📊 GSE174367_Human_ECM_communicationV4_AUC_heatmap.pdf
+   Size: ~6.8 KB
+   Purpose: GSE174367-specific heatmap
+   Content: AUC values for 20 genes × 7 cell types
+   Format: PDF
+
+📊 GSE188545_Human_ECM_communicationV4_AUC_heatmap.pdf
+   Size: ~7.1 KB
+   Purpose: GSE188545-specific heatmap
+   Content: AUC values for 20 genes × 8 cell types
+   Format: PDF
+
+📊 Summary_statistics_per_dataset.pdf
+   Size: ~5.0 KB
+   Purpose: Statistical overview visualization
+   Content: Bar charts showing per-dataset statistics
+   Format: PDF
+
+
+📝 DOCUMENTATION FILES (docs/) - 3.0 MB total
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+⭐ analysis_summary.md (2.9 KB)
+   Purpose: Detailed analysis summary
+   Contents: 
+   - Overview
+   - Analysis workflow
+   - Results summary
+   - Technical details
+   Recommended: For methodology details
+
+📋 session_info.txt (3.8 KB)
+   Purpose: R session information
+   Contents:
+   - R version
+   - All loaded packages with versions
+   - System information
+   Recommended: For reproducibility
+
+
+╔═══════════════════════════════════════════════════════════════════════════╗
+║                         QUICK ACCESS GUIDE                                ║
+╚═══════════════════════════════════════════════════════════════════════════╝
+
+1️⃣ NEW TO THIS ANALYSIS?
+   → Read: README.md (navigation guide)
+   → Then: QUICK_REFERENCE.md (fast understanding)
+   → Finally: 20260108_task_summary.md (complete story)
+
+2️⃣ WANT TO SEE THE NUMBERS?
+   → Open: csv/summary_statistics_per_dataset.csv
+   → Then: csv/summary_statistics_per_celltype.csv
+   → Full data: csv/All_Datasets_ECM_communicationV4_wilcoxauc_combined.csv
+
+3️⃣ WANT TO SEE THE VISUALS?
+   → Open: figures/All_Datasets_ECM_communicationV4_AUC_heatmap.pdf
+   → Then: figures/GSE174367_Human_ECM_communicationV4_AUC_heatmap.pdf
+   → Then: figures/GSE188545_Human_ECM_communicationV4_AUC_heatmap.pdf
+
+4️⃣ WANT TO UNDERSTAND THE METHOD?
+   → Read: docs/analysis_summary.md
+   → Then: docs/session_info.txt (package versions)
+
+5️⃣ WANT TO REPRODUCE THE ANALYSIS?
+   → Scripts: task/20260108-17-ECM_communicationV4_wilcoxauc_3datasets/code/
+   → Data: Original Seurat objects in data/ directory
+   → Packages: Check docs/session_info.txt
+
+
+╔═══════════════════════════════════════════════════════════════════════════╗
+║                         KEY STATISTICS                                     ║
+╚═══════════════════════════════════════════════════════════════════════════╝
+
+📊 Analysis Scope:
+   • Datasets: 2 (GSE174367, GSE188545)
+   • Genes tested: 20 (ECM Communication V4)
+   • Cell types: 15 (7 + 8)
+   • Total combinations: 600
+
+🎯 Main Result:
+   • Mean AUC: 0.5 (no difference)
+   • Genes with AUC > 0.6: 2 (0.3%)
+   • Genes with AUC > 0.7: 0 (0%)
+   • Conclusion: ECM V4 genes are stable in AD
+
+📁 File Organization:
+   • Total size: 18 MB
+   • CSV files: 6 MB (data)
+   • PDF files: 5 MB (visualizations)
+   • Docs: 3 MB (methodology)
+   • Summaries: 3 MB (guides)
+
+
+╔═══════════════════════════════════════════════════════════════════════════╗
+║                    FILE OPENING RECOMMENDATIONS                           ║
+╚═══════════════════════════════════════════════════════════════════════════╝
+
+CSV FILES:
+   • Excel: Works perfectly (File → Open)
+   • R: read.csv() or readr::read_csv()
+   • Python: pandas.read_csv()
+   • LibreOffice Calc: Works perfectly
+
+PDF FILES:
+   • Adobe Acrobat Reader: Recommended for best quality
+   • Preview (Mac): Built-in, works well
+   • Browser (Chrome/Edge): Opens inline
+   • Linux: evince, okular, xpdf
+
+MARKDOWN FILES:
+   • VS Code: Perfect rendering
+   • Typora: Excellent WYSIWYG editor
+   • Browser: Use markdown preview extension
+   • Text editor: Plain text (no formatting)
+
+
+╔═══════════════════════════════════════════════════════════════════════════╗
+║                         CONTACT & SUPPORT                                 ║
+╚═══════════════════════════════════════════════════════════════════════════╝
+
+For questions about this analysis:
+   → Project docs: CLAUDE.md, AGENT.md
+   → Task summary: 20260108_task_summary.md
+   → Scripts: task/20260108-17-ECM_communicationV4_wilcoxauc_3datasets/code/
+
+Last updated: January 8, 2026
+Analysis by: Claude Code AI Assistant
+Project: AD Public Single-Cell Data Analysis
+

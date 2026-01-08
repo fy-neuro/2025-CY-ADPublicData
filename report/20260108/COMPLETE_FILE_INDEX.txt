@@ -1,0 +1,279 @@
+╔═══════════════════════════════════════════════════════════════════════════╗
+║              ECM COMMUNICATION V4 - COMPLETE RESULTS INDEX                 ║
+║                         January 8, 2026                                    ║
+╔═══════════════════════════════════════════════════════════════════════════╗
+
+📂 ROOT DIRECTORY (report/20260108/)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+📄 README.md                            ← Navigation guide for all results
+📄 QUICK_REFERENCE.md                   ← 30-second TL;DR
+📄 FILE_INDEX.txt                      ← Detailed file catalog (wilcoxauc)
+📄 PSEUDOBULK_RESULTS.md               ← Pseudobulk analysis guide ⭐ NEW
+📄 20260108_task_summary.md            ← Complete daily summary (Chinese)
+
+╔═══════════════════════════════════════════════════════════════════════════╗
+║                    PART 1: WILCOXAUC ANALYSIS RESULTS                     ║
+╚═══════════════════════════════════════════════════════════════════════════╝
+
+📊 CSV DATA FILES (csv/)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+⭐ summary_statistics_per_dataset.csv (257 B)
+   → Quick overview per dataset
+⭐ summary_statistics_per_celltype.csv (682 B)
+   → Per-celltype statistics
+📊 All_Datasets_ECM_communicationV4_wilcoxauc_combined.csv (74 KB)
+   → Complete results (600 rows)
+📊 GSE174367_ECM_communicationV4_wilcoxauc.csv (35 KB)
+   → GSE174367 only
+📊 GSE188545_ECM_communicationV4_wilcoxauc.csv (40 KB)
+   → GSE188545 only
+
+📈 FIGURE FILES (figures/)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+⭐ All_Datasets_ECM_communicationV4_AUC_heatmap.pdf (8.0 KB)
+   → Combined heatmap for both datasets
+📊 GSE174367_Human_ECM_communicationV4_AUC_heatmap.pdf (6.8 KB)
+📊 GSE188545_Human_ECM_communicationV4_AUC_heatmap.pdf (7.1 KB)
+📊 Summary_statistics_per_dataset.pdf (5.0 KB)
+
+📝 DOCUMENTATION (docs/)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+⭐ analysis_summary.md (2.9 KB)
+📋 session_info.txt (3.8 KB)
+
+╔═══════════════════════════════════════════════════════════════════════════╗
+║                   PART 2: PSEUDOBULK ANALYSIS RESULTS                     ║
+╚══════════════════════════━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╯
+
+📂 TASK 18: GSE188545 SINGLE-DATASET PSEUDOBULK
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Directory: pseudobulk/task18_GSE188545/
+
+📊 DATA FILES (data/)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+⭐ ECM_communicationV4_pseudobulk_DEG_results.csv (21 KB)
+   → Complete DESeq2 results for all genes × celltypes
+📊 overall_summary.csv (239 B)
+   → Quick statistics overview
+📊 significant_genes_padj_0.05.csv (1.5 KB)
+   → Genes with padj < 0.05
+📊 significant_genes_padj_0.05_abs_log2FC_gt_1.csv (768 B)
+   → Genes with padj < 0.05 AND |log2FC| > 1
+📊 summary_statistics_per_celltype.csv (618 B)
+   → Per-celltype statistics
+
+📈 VISUALIZATION FILES
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+VOLCANO PLOTS (volcano_plots/) - 7 files:
+   ⭐ volcano_Astrocytes.pdf (6.3 KB)
+   ⭐ volcano_Microglia.pdf (6.2 KB)
+   ⭐ volcano_Glutamatergic_Neurons.pdf (6.4 KB)
+   ⭐ volcano_GABAergic_Neurons.pdf (6.3 KB)
+   ⭐ volcano_Oligodendrocytes.pdf (6.4 KB)
+   ⭐ volcano_OPC.pdf (6.2 KB)
+   ⭐ volcano_Endothelial.pdf (6.0 KB)
+
+HEATMAPS (heatmaps/):
+   ⭐ log2_fold_change_heatmap.pdf (7.1 KB)
+
+SUMMARY PLOTS (summary_plots/):
+   📊 summary_genes_tested.pdf (4.7 KB)
+   📊 summary_significant_genes.pdf (4.7 KB)
+
+📂 TASK 19: MULTI-DATASET PSEUDOBULK
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Directory: pseudobulk/task19_3datasets/
+
+📊 DATA FILES (data/)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+⭐ All_Datasets_ECM_communicationV4_pseudobulk_DEG_combined.csv (49 KB)
+   → Combined results from both datasets
+📊 GSE174367_ECM_communicationV4_pseudobulk_DEG.csv (22 KB)
+   → GSE174367-specific results
+📊 GSE188545_ECM_communicationV4_pseudobulk_DEG.csv (28 KB)
+   → GSE188545-specific results
+📊 All_Datasets_ECM_communicationV4_pseudobulk_significant_padj_0.05.csv (2.2 KB)
+   → Significant genes (padj < 0.05)
+📊 All_Datasets_ECM_communicationV4_pseudobulk_significant_padj_0.05_abs_log2FC_gt_1.csv (1.1 KB)
+   → Significant genes (padj < 0.05, |log2FC| > 1)
+📊 Genes_significant_in_multiple_datasets.csv (205 B)
+   → Genes significant in BOTH datasets
+📊 summary_statistics_per_dataset.csv (325 B)
+📊 summary_statistics_per_celltype.csv (1.1 KB)
+
+📈 VISUALIZATION FILES
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+HEATMAPS (heatmaps/):
+   ⭐ All_Datasets_log2_fold_change_heatmap.pdf (7.6 KB)
+   ⭐ GSE174367_Human_log2_fold_change_heatmap.pdf (6.6 KB)
+   ⭐ GSE188545_Human_log2_fold_change_heatmap.pdf (6.9 KB)
+
+SUMMARY PLOTS (summary_plots/):
+   📊 Summary_statistics_per_dataset.pdf (5.1 KB)
+
+╔═══════════════════════════════════════════════════════════════════════════╗
+║                         QUICK NAVIGATION GUIDE                            ║
+╚══════════════════════════════━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╯
+
+🎯 NEW TO THIS ANALYSIS?
+   1. Read: README.md (overview)
+   2. Then: QUICK_REFERENCE.md (fast understanding)
+   3. Finally: 20260108_task_summary.md (complete story)
+
+📊 WANT TO SEE WILCOXAUC RESULTS?
+   → Data: csv/summary_statistics_per_dataset.csv
+   → Visuals: figures/All_Datasets_ECM_communicationV4_AUC_heatmap.pdf
+   → Guide: FILE_INDEX.txt
+
+🔬 WANT TO SEE PSEUDOBULK RESULTS?
+   → Guide: PSEUDOBULK_RESULTS.md ⭐ START HERE
+   → Data: pseudobulk/task19_3datasets/data/All_Datasets_ECM_communicationV4_pseudobulk_DEG_combined.csv
+   → Volcanoes: pseudobulk/task18_GSE188545/volcano_plots/
+   → Heatmaps: pseudobulk/task19_3datasets/heatmaps/
+
+⚡ WANT TO COMPARE METHODS?
+   → Wilcoxauc: csv/All_Datasets_ECM_communicationV4_wilcoxauc_combined.csv
+   → Pseudobulk: pseudobulk/task19_3datasets/data/All_Datasets_ECM_communicationV4_pseudobulk_DEG_combined.csv
+   → Comparison guide: PSEUDOBULK_RESULTS.md (section: Key Differences)
+
+╔═══════════════════════════════════════════════════════════════════════════╗
+║                          FILE SIZE SUMMARY                                ║
+╚════════════════════━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╯
+
+📊 WILCOXAUC ANALYSIS:
+   • CSV data: 150 KB (5 files)
+   • Figures: 27 KB (4 PDFs)
+   • Documentation: 7 KB (2 files)
+   • Total: ~184 KB
+
+🔬 PSEUDOBULK ANALYSIS:
+   TASK 18 (GSE188545):
+   • CSV data: 24 KB (5 files)
+   • Volcano plots: 44 KB (7 PDFs)
+   • Other figures: 16 KB (3 PDFs)
+   • Total: ~84 KB
+
+   TASK 19 (3 datasets):
+   • CSV data: 105 KB (8 files)
+   • Heatmaps: 21 KB (3 PDFs)
+   • Summary plots: 5 KB (1 PDF)
+   • Total: ~131 KB
+
+📁 GRAND TOTAL:
+   • All analyses: ~400 KB (data + figures + docs)
+   • Including guides: ~500 KB
+
+╔═══════════════════════════════════════════════════════════════════════════╗
+║                          KEY STATISTICS                                   ║
+╚════════════════━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╯
+
+ANALYSIS SCOPE:
+   • Datasets: 2 human AD datasets (GSE174367, GSE188545)
+   • Genes: 20 ECM Communication V4 genes
+   • Cell types: 15 unique (7 + 8)
+   • Total combinations: 600
+
+METHODS USED:
+   • Wilcoxauc: Single-cell level (AUC metric)
+   • Pseudobulk DESeq2: Sample-level (log2FC, padj)
+
+MAIN FINDINGS:
+   Wilcoxauc:
+   • Mean AUC = 0.5 (genes stable in AD)
+   • Only 2 genes with AUC > 0.6
+   • No genes with AUC > 0.7
+
+   Pseudobulk:
+   • More conservative results
+   • Fewer significant genes
+   • Higher confidence for positives
+
+╔═══════════════════════════════════════════════════════════════════════════╗
+║                          RECOMMENDED WORKFLOW                             ║
+╚════════════════━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╯
+
+STEP 1: OVERVIEW (5 minutes)
+   ✓ Read QUICK_REFERENCE.md
+   ✓ Open csv/summary_statistics_per_dataset.csv
+   ✓ View figures/All_Datasets_ECM_communicationV4_AUC_heatmap.pdf
+
+STEP 2: WILCOXAUC RESULTS (10 minutes)
+   ✓ Review csv/All_Datasets_ECM_communicationV4_wilcoxauc_combined.csv
+   ✓ Check individual heatmaps in figures/
+   ✓ Read docs/analysis_summary.md
+
+STEP 3: PSEUDOBULK RESULTS (15 minutes)
+   ✓ Read PSEUDOBULK_RESULTS.md
+   ✓ Examine volcano plots in pseudobulk/task18_GSE188545/volcano_plots/
+   ✓ Review heatmaps in pseudobulk/task19_3datasets/heatmaps/
+   ✓ Check significant genes CSVs
+
+STEP 4: COMPARE METHODS (20 minutes)
+   ✓ Identify genes significant in BOTH methods
+   ✓ Review PSEUDOBULK_RESULTS.md comparison table
+   ✓ Create combined analysis if needed
+
+STEP 5: DEEP DIVE (30+ minutes)
+   ✓ Review all CSV files in detail
+   ✓ Read 20260108_task_summary.md for context
+   ✓ Check session_info.txt for reproducibility
+   ✓ Prepare figures for publication
+
+╔═══════════════════════════════════════════════════════════════════════════╗
+║                          NEXT STEPS                                       ║
+╚════════════════━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╯
+
+SHORT TERM (1-2 days):
+   1. Identify high-confidence genes (significant in BOTH methods)
+   2. Cross-dataset validation (consistent in GSE174367 AND GSE188545)
+   3. Literature review of top candidates
+
+MEDIUM TERM (3-7 days):
+   1. Pathway enrichment analysis (GO, KEGG)
+   2. Compare with ECM V1, V2, V3 results
+   3. Prepare publication-quality figures
+
+LONG TERM (1-2 weeks):
+   1. Integrate all ECM gene list analyses
+   2. Write comprehensive results section
+   3. Prepare supplemental materials
+
+╔═══════════════════════════════════════════════════════════════════════════╗
+║                          TECHNICAL INFO                                   ║
+╚════════════════━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╯
+
+R PACKAGES USED:
+   • Seurat (v5.3.1) - Single-cell analysis
+   • presto - Fast Wilcoxon and AUC
+   • DESeq2 - Pseudobulk differential expression
+   • dplyr/tidyr - Data manipulation
+   • ggplot2/patchwork - Visualization
+   • pheatmap/viridis - Heatmaps
+
+ANALYSIS SCRIPTS:
+   • Wilcoxauc: task/20260108-17-ECM_communicationV4_wilcoxauc_3datasets/code/
+   • Pseudobulk: task/20260108-18-*/code/ and task/20260108-19-*/code/
+
+METADATA VARIABLES:
+   • GSE174367: Diagnosis (condition), Cell.Type (celltype), SampleID (sample)
+   • GSE188545: condition, celltype, sample
+
+For questions:
+   → Project docs: CLAUDE.md, AGENT.md
+   → Daily summary: 20260108_task_summary.md
+   → Pseudobulk guide: PSEUDOBULK_RESULTS.md
+
+Last updated: January 8, 2026
+Analysis by: Claude Code AI Assistant
+Project: AD Public Single-Cell Data Analysis
+
