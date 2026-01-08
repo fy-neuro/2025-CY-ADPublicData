@@ -26,3 +26,14 @@ task/*/AGENT.md
 # OS files
 .DS_Store
 Thumbs.db
+
+.csv
+.txt
+.pdf
+.png
+.jpg
+.jpeg
+.svg
+.gif
+.bmp
+.tiff
