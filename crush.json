@@ -1,0 +1,38 @@
+{
+    "$schema": "https://charm.land/crush.json",
+    "mcp": {
+        "zai-mcp-server": {
+            "type": "stdio",
+            "command": "npx",
+            "args": [
+                "-y",
+                "@z_ai/mcp-server"
+            ],
+            "env": {
+                "Z_AI_API_KEY": "6e0c55da1f1d485e83b1fce414a3fa5e.XZNQrcbfyzGDl8FQ",
+                "Z_AI_MODE": "ZHIPU"
+            }
+        },
+        "web-search-prime": {
+            "type": "http",
+            "url": "https://open.bigmodel.cn/api/mcp/web_search_prime/mcp",
+            "headers": {
+                "Authorization": "Bearer 6e0c55da1f1d485e83b1fce414a3fa5e.XZNQrcbfyzGDl8FQ"
+            }
+        },
+        "web-reader": {
+            "type": "http",
+            "url": "https://open.bigmodel.cn/api/mcp/web_reader/mcp",
+            "headers": {
+                "Authorization": "Bearer 6e0c55da1f1d485e83b1fce414a3fa5e.XZNQrcbfyzGDl8FQ"
+            }
+        },
+        "zread": {
+            "type": "http",
+            "url": "https://open.bigmodel.cn/api/mcp/zread/mcp",
+            "headers": {
+                "Authorization": "Bearer 6e0c55da1f1d485e83b1fce414a3fa5e.XZNQrcbfyzGDl8FQ"
+            }
+        }
+    }
+}

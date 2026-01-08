@@ -17,6 +17,7 @@ This document provides essential information for AI agents working in this R-bas
 │   ├── 1stAnnotation.R               # Cell type marker definitions
 │   ├── getdir.R                      # Directory path utilities
 │   ├── recluster.R                   # Reclustering functions
+│   ├── create_loupe.R                # Create Loupe Browser files from Seurat objects
 │   └── plot_function/                # Plotting utilities
 │       ├── Dotplot.R
 │       ├── GO Enrichment.R
@@ -41,7 +42,7 @@ This document provides essential information for AI agents working in this R-bas
 - **Count matrices**: Compressed CSV (`.csv.gz`) with genes as rows, cells as columns
 - **Seurat objects**: Saved as `.rds` files (R serialized format)
 - **10X Genomics data**: H5 files (`.h5`) for filtered feature-bc matrices
-- **10X sample directories**: Some datasets contain per-sample directories with separate barcodes/genes/matrix files (e.g., `sample_dirs/` in task directories)
+- **10X sample directories**: Some datasets contain per-sample directories with separate barcodes/genes/matrix files (e.g., `sample_dirs/` in task directories). For GSE188545, data is stored in `data/GSE188545/GSE188545_GEM/` with per-sample `.tsv.gz` and `.mtx.gz` files.
 - **Gene lists**: Excel files (`.xlsx`) for ECM-related genes
 - **Metadata**: CSV files (`.csv.gz`) for sample covariates
 
@@ -86,7 +87,13 @@ install.packages(c("Seurat", "dplyr", "ggplot2", "here", "harmony"))
 - Tasks are generally independent but may share data from `data/` directory
 
 ### Reusable Functions
-- `src/` contains reusable functions for annotation, clustering, plotting
+- `src/` contains reusable functions for annotation, clustering, plotting, and data export
+- Key functions:
+  - `1stAnnotation.R`: Cell type marker gene definitions (mouse/human)
+  - `getdir.R`: Directory path utilities
+  - `recluster.R`: Reclustering with Harmony batch correction
+  - `create_loupe.R`: Create Loupe Browser (.cloupe) files from Seurat objects
+  - `plot_function/`: Various plotting utilities (dot plots, violin plots, GO enrichment, etc.)
 - Functions are sourced using `here()` package pattern:
   ```r
   here("src/getdir.R") %>% source()
@@ -105,6 +112,12 @@ install.packages(c("Seurat", "dplyr", "ggplot2", "here", "harmony"))
 - Scripts often create output directories using `dir.create()`
 - Typical pattern: `dir.create("../plot", showWarnings = FALSE, recursive = TRUE)`
 - Directories created relative to working directory (usually project root)
+
+### Task-Specific Documentation
+- Many task directories contain their own `AGENT.md` files with detailed instructions specific to that analysis
+- These files provide: task overview, input data details, analysis pipeline, execution commands, and task-specific gotchas
+- Check for `AGENT.md` in task directories (e.g., `task/20251214-10-GSE188545_Annotation/AGENT.md`)
+- Task-specific guides override or supplement the project-wide AGENTS.md for that particular analysis
 
 ### Analysis Pipeline Patterns
 1. **Data Loading**: Read count matrices (CSV.gz or 10X H5) → Create Seurat object
@@ -142,6 +155,7 @@ No formal test suite (no testthat, no tests/ directory). Validation is done thro
 - Visual inspection of plots
 - Checking Seurat object dimensions and metadata
 - Manual review of analysis outputs
+- Ad-hoc test scripts (e.g., `test_loupe_functions.R`, `test_gse188545_minimal.R`) for debugging specific functions or data loading
 
 ## Important Gotchas
 
@@ -182,6 +196,13 @@ No formal test suite (no testthat, no tests/ directory). Validation is done thro
 - For human datasets, ensure appropriate organism database (e.g., `org.Hs.eg.db`)
 - Cell type markers in `src/1stAnnotation.R` include both mouse and human genes
 
+### Seurat v5 Compatibility
+- **Seurat v5.3.1** uses layered data; call `JoinLayers()` before marker detection (`FindAllMarkers`) and expression scoring
+- Use `layer = "data"` instead of deprecated `slot = "data"` in `GetAssayData()`
+- Load `plyr` before `dplyr` to avoid namespace conflicts (some scripts explicitly load `plyr` first)
+- Memory considerations: `JoinLayers()` can increase memory usage significantly (2-3x object size)
+- Check `layer` names with `Layers()`; default layers are `counts`, `data`, `scale.data`
+
 ## Project-Specific Context
 
 ### Key Datasets
@@ -201,6 +222,7 @@ No formal test suite (no testthat, no tests/ directory). Validation is done thro
 - **Seurat**: Single-cell analysis toolkit
 - **Harmony**: Batch effect correction
 - **ggplot2**: Plotting
+- **plyr**: Data manipulation (load before dplyr to avoid namespace conflicts)
 - **dplyr/tidyr**: Data manipulation
 - **here**: Project-relative paths
 - **Matrix**: Sparse matrix support
@@ -216,6 +238,10 @@ No formal test suite (no testthat, no tests/ directory). Validation is done thro
 - **AnnotationDbi**, **org.Mm.eg.db**: Gene annotation (mouse-specific)
 - **clusterProfiler**, **enrichplot**: GO enrichment analysis
 - **stringr**, **purrr**: String manipulation and functional programming
+- **presto**: Fast Wilcoxon rank sum test and AUC calculation
+- **openxlsx**: Reading Excel files (ECM gene lists)
+- **pheatmap**, **viridis**: Heatmap visualization and color palettes
+- **org.Hs.eg.db**: Human gene annotation database (used for human datasets)
 
 ## Quick Start for New Tasks
 
